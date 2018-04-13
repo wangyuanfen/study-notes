@@ -1,7 +1,7 @@
 ### vue生命周期描述
-beforecreated：el 和 data 并未初始化   
-created:完成了 data 数据的初始化，el没有  
-beforeMount：完成了 el 和 data 初始化   
+beforecreated：el和data并未初始化   
+created:完成了 data数据的初始化，el没有  
+beforeMount：完成了el和data初始化   
 mounted ：完成挂载  
 ### 父子组件通信
 props 
