@@ -8,7 +8,6 @@ JavaScript 函数是被设计为执行特定任务的代码块。会在某代码
 ## 函数类型
 
 **函数声明**
-首先是 function 关键字，然后是函数的名字，函数可以在全局上下文中或者函数体内声明。
 ```
 alert(sum(10,10)); // 正常
 function sum (num1, num2) { 
@@ -29,3 +28,23 @@ var sum = function(num1, num2){
 所以会出现上面两段代码的alert结果
 
 **Function构造函数**
+
+## 自执行(立即调用)函数表达式
+
+当声明类似function foo(){}或var foo = function(){}函数的时候，通过在后面加个括弧就可以实现自执行
+```
+(function () { /* code */ } ()); // 推荐使用这个
+(function () { /* code */ })(); //
+
+var i = function () { return 10; } ();
+true && function () { /* code */ } ();
+0, function () { /* code */ } ();
+
+!function () { /* code */ } ();
+~function () { /* code */ } ();
+-function () { /* code */ } ();
++function () { /* code */ } ();
+
+new function () { /* code */ }
+new function () { /* code */ } () // 如果需要传递参数，只需要加上括弧()
+```
