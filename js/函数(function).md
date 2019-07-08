@@ -29,9 +29,9 @@ var sum = function(num1, num2){
 
 **Function构造函数**
 
-## 自执行(立即调用)函数表达式
+## 立即调用函数表达式
 
-当声明类似function foo(){}或var foo = function(){}函数的时候，通过在后面加个括弧就可以实现自执行
+当声明类似function foo(){}或var foo = function(){}函数的时候，通过在后面加个括弧就可以实现立即调用
 ```
 (function () { /* code */ } ()); // 推荐使用这个
 (function () { /* code */ })(); //
