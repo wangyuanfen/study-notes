@@ -100,3 +100,6 @@ overflow: hidden，把第二个元素变成BFC
 ![](https://github.com/wangyuanfen/study-notes/blob/master/image/1563272402543.jpg?raw=true)
 
 同时这个方法可以用来实现两列自适应布局
+
+## 详解
+* [10 分钟理解 BFC 原理](https://zhuanlan.zhihu.com/p/25321647)
