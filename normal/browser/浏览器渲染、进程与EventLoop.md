@@ -42,10 +42,10 @@ Event Loop即事件循环，是指浏览器或Node的一种解决javaScript单�
 * 将检测到状态变更时，如果设置有回调函数，异步线程就产生状态变更事件，将这个回调再放入事件队列中。再由JavaScript引擎执行。
 
 ## JS分为同步任务和异步任务
-1. 同步任务都在主线程上执行，形成一个执行栈
+1. 同步任务都在主线程(main thread)上执行，形成一个执行栈(call-stack)。
 2. 主线程之外，事件触发线程管理着一个任务队列，只要异步任务有了运行结果，就在任务队列之中放置一个事件。
 3. 一旦执行栈中的所有同步任务执行完毕（此时JS引擎空闲），系统就会读取任务队列，将可运行的异步任务添加到可执行栈中，开始执行。
-4. 总是要等待栈中的代码执行完毕后才会去读取任务队列中的事件
+4.  执行栈栈采用的是后进先出的规则，当函数执行的时候，会被添加到栈的顶部，当执行栈执行完成后，就会从栈顶移出，直到栈内被清空。总是要等待栈中的代码执行完毕后才会去读取任务队列中的事件。
 ![](https://github.com/wangyuanfen/study-notes/blob/master/image/1563463752828.jpg?raw=true)
 
 ## setTimeout
@@ -67,8 +67,9 @@ console.log('begin');
 ```
 0毫秒后就推入事件队列，但是W3C在HTML标准中规定，规定要求setTimeout中低于4ms的时间间隔算为4ms。假设0毫秒就推入事件队列，也会先执行begin（因为只有可执行栈内空了后才会主动读取事件队列）
 
-## Macrotask(宏任务)与Microtask(微任务)
-JS中分为两种任务类型：macrotask和microtask，在ECMAScript中，microtask称为jobs，macrotask可称为task
+## 浏览器中的Event Loop
+JS中分为两种任务类型：**Macrotask(宏任务)与Microtask(微任务)** ，在ECMAScript中，microtask称为jobs，macrotask可称为task。
+
 1. macrotask（又称之为宏任务），可以理解是每次执行栈执行的代码就是一个宏任务（包括每次从事件队列中获取一个事件回调并放到执行栈中执行）
 * 每一个task会从头到尾将这个任务执行完毕，不会执行其它
 * 浏览器为了能够使得JS内部task与DOM任务能够有序的执行，会在一个task执行结束后，在下一个 task 执行开始前，对页面进行重新渲染
@@ -112,4 +113,15 @@ console.log('script end');
 \\ promise2
 \\ setTimeout
 ```
+## NodeJS的Event Loop
+Node的Event loop一共分为6个阶段，每个细节具体如下：
+* timers: 执行setTimeout和setInterval中到期的callback。
+* pending（I/O） callback: 上一轮循环中少数的callback会放在这一阶段执行，会执行除了 close 事件，定时器和 setImmediate 的回调。
+* idle, prepare: 仅在内部使用。
+* poll: 最重要的阶段，执行pending callback，在适当的情况下回阻塞在这个阶段。
+* check: 执行setImmediate(setImmediate()是将事件插入到事件队列尾部，主线程和事件队列的函数执行完成之后立即执行setImmediate指定的回调函数)的callback。
+* close callbacks: 执行close事件的callback，例如socket.on('close'[,fn])或者http.server.on('close, fn)。
+
+## 引用
+* [一次弄懂Event Loop](https://juejin.im/post/5c3d8956e51d4511dc72c200)
 * [从浏览器多进程到JS单线程，JS运行机制最全面的一次梳理](https://juejin.im/post/5a6547d0f265da3e283a1df7)
