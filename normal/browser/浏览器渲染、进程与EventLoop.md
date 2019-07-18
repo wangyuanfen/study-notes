@@ -89,6 +89,7 @@ JS中分为两种任务类型：macrotask和microtask，在ECMAScript中，micro
 4. 当前宏任务执行完毕，开始检查渲染，然后GUI线程接管渲染
 5. 渲染完毕后，JS线程继续接管，开始下一个宏任务（从事件队列中获取）
 ![](https://github.com/wangyuanfen/study-notes/blob/master/image/1563464666560.jpg?raw=true)
+
 例子
 ```
 console.log('script start');
