@@ -99,6 +99,83 @@ n * n;
 ### 生成
 代码生成步骤把最终（经过一系列转换之后）的 AST 转换成字符串形式的代码，同时还会创建源码映射（source maps）。代码生成其实很简单：深度优先遍历整个 AST，然后构建可以表示转换后代码的字符串。
 
+## 遍历
+想要 **转换 AST** 你需要进行递归的树形遍历。
 
+### Visitors（访问者）
+当我们谈及“进入”一个节点，实际上是说我们在访问它们， 之所以使用这样的术语是因为有一个访问者模式（visitor）的概念。
+```
+const MyVisitor = {
+  Identifier() {
+    console.log("Called!");
+  }
+};
+
+// 你也可以先创建一个访问者对象，并在稍后给它添加方法。
+let visitor = {};
+visitor.MemberExpression = function() {};
+visitor.FunctionDeclaration = function() {}
+
+function square(n) {
+  return n * n;
+}
+```
+这是一个简单的访问者，把它用于遍历中时，每当在树中遇见一个 Identifier 的时候会调用 Identifier() 方法。所以在下面的代码中 Identifier() 方法会被调用四次（包括 square 在内，总共有四个 Identifier）。
+```
+path.traverse(MyVisitor);
+Called!
+Called!
+Called!
+Called!
+```
+这些调用都发生在进入节点时，不过有时候我们也可以在退出时调用访问者方法。
+
+假设我们有一个树状结构：
+```
+- FunctionDeclaration
+  - Identifier (id)
+  - Identifier (params[0])
+  - BlockStatement (body)
+    - ReturnStatement (body)
+      - BinaryExpression (argument)
+        - Identifier (left)
+        - Identifier (right)
+```
+当我们向下遍历这颗树的每一个分支时我们最终会走到尽头，于是我们需要往上遍历回去从而获取到下一个节点。 向下遍历这棵树我们进入每个节点，向上遍历回去时我们退出每个节点。
+
+* 进入 FunctionDeclaration
+  * 进入 Identifier (id)
+  * 走到尽头
+  * 退出 Identifier (id)
+  * 进入 Identifier (params[0])
+  * 走到尽头
+  * 退出 Identifier (params[0])
+  * 进入 BlockStatement (body)
+  * 进入 ReturnStatement (body)
+    * 进入 BinaryExpression (argument)
+    * 进入 Identifier (left)
+    * 走到尽头
+    * 退出 Identifier (left)
+    * 进入 Identifier (right)
+    * 走到尽头
+    * 退出 Identifier (right)
+    * 退出 BinaryExpression (argument)
+  * 退出 ReturnStatement (body)
+  * 退出 BlockStatement (body)
+* 退出 FunctionDeclaration
+
+所以当创建访问者时你实际上有两次机会来访问一个节点。
+```
+const MyVisitor = {
+  Identifier: {
+    enter() {
+      console.log("Entered!");
+    },
+    exit() {
+      console.log("Exited!");
+    }
+  }
+};
+```
 [Babel 插件手册](https://github.com/jamiebuilds/babel-handbook/blob/master/translations/zh-Hans/plugin-handbook.md#toc-asts)
 [AST 抽象语法树](http://jartto.wang/2018/11/17/about-ast/)
