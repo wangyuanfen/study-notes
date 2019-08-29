@@ -29,57 +29,55 @@ font size of the root element.
 rem就是相对于根元素<html>的font-size来做计算。使用rem单位，是能轻易的根据<html>的font-size计算出元素的盒模型大小。
 
 ## 使用
-Flexible中，只对iOS设备进行dpr的判断，对于Android系列，始终认为其dpr为1,实际上就是能过JS来动态改写meta标签
+Flexible中，只对iOS设备进行dpr的判断，对于Android系列，始终认为其dpr为1
 ```
-(function flexible (window, document) {
-  var docEl = document.documentElement
-  var dpr = window.devicePixelRatio || 1
-
-  // adjust body font size
-  function setBodyFontSize () {
-    if (document.body) {
-      document.body.style.fontSize = (12 * dpr) + 'px'
+if (!dpr && !scale) {
+    var isAndroid = win.navigator.appVersion.match(/android/gi);
+    var isIPhone = win.navigator.appVersion.match(/iphone/gi);
+    var devicePixelRatio = win.devicePixelRatio;
+    if (isIPhone) {
+        // iOS下，对于2和3的屏，用2倍的方案，其余的用1倍方案
+        if (devicePixelRatio >= 3 && (!dpr || dpr >= 3)) {                
+            dpr = 3;
+        } else if (devicePixelRatio >= 2 && (!dpr || dpr >= 2)){
+            dpr = 2;
+        } else {
+            dpr = 1;
+        }
+    } else {
+        // 其他设备下，仍旧使用1倍的方案
+        dpr = 1;
     }
-    else {
-      document.addEventListener('DOMContentLoaded', setBodyFontSize)
-    }
-  }
-  setBodyFontSize();
-
-  // set 1rem = viewWidth / 10
-  function setRemUnit () {
-    var rem = docEl.clientWidth / 10
-    docEl.style.fontSize = rem + 'px'
-  }
-
-  setRemUnit()
-
-  // reset rem unit on page resize
-  window.addEventListener('resize', setRemUnit)
-  window.addEventListener('pageshow', function (e) {
-    if (e.persisted) {
-      setRemUnit()
-    }
-  })
-
-  // detect 0.5px supports
-  if (dpr >= 2) {
-    var fakeBody = document.createElement('body')
-    var testElement = document.createElement('div')
-    testElement.style.border = '.5px solid transparent'
-    fakeBody.appendChild(testElement)
-    docEl.appendChild(fakeBody)
-    if (testElement.offsetHeight === 1) {
-      docEl.classList.add('hairlines')
-    }
-    docEl.removeChild(fakeBody)
-  }
-}(window, document))
+    scale = 1 / dpr;
+}
 ```
-* 动态改写<meta>标签
-* 给<html>元素添加data-dpr属性，并且动态改写data-dpr的值
-* 给<html>元素添加font-size属性，并且动态改写font-size的值
-
+flexible实际上就是能过JS来动态改写meta标签，改变缩放比例
+```
+if (!metaEl) {
+    metaEl = doc.createElement('meta');
+    metaEl.setAttribute('name', 'viewport');
+    metaEl.setAttribute('content', 'initial-scale=' + scale + ', maximum-scale=' + scale + ', minimum-scale=' + scale + ', user-scalable=no');
+    if (docEl.firstElementChild) {
+        docEl.firstElementChild.appendChild(metaEl);
+    } else {
+        var wrap = doc.createElement('div');
+        wrap.appendChild(metaEl);
+        doc.write(wrap.innerHTML);
+    }
+}
+```
+给<html>元素添加font-size属性，并且动态改写font-size的值
+```
+function refreshRem(){
+    var width = docEl.getBoundingClientRect().width;
+    if (width / dpr > 540) {
+        width = 540 * dpr;
+    }
+    var rem = width / 10;
+    docEl.style.fontSize = rem + 'px';
+    flexible.rem = win.rem = rem;
+}
+```
 以750px为基础设计的, 目前Flexible会将视觉稿分成**100份**，而每一份被称为一个单位a。同时1rem单位被认定为10a。
 ```
 1a   = 7.5px
@@ -87,7 +85,7 @@ Flexible中，只对iOS设备进行dpr的判断，对于Android系列，始终�
 ```
 稿子就分成了10a，也就是整个宽度为10rem，<html>对应的font-size为75px
 
-这样一来，对于视觉稿上的元素尺寸换算，只需要原始的px值除以rem基准值即可。尺寸是176px * 176px,转换成为2.346667rem * 2.346667rem。
+这样一来，对于视觉稿上的元素尺寸换算，只需要原始的px值除以rem基准值即可。例如，尺寸是176px * 176px,转换成为2.346667rem * 2.346667rem。
 
 
 
