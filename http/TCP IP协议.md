@@ -31,3 +31,5 @@ TCP/IP传输协议是严格来说是一个四层的体系结构，应用层、�
 ## 基本框架
 ![](https://github.com/wangyuanfen/study-notes/blob/master/image/1567220295773.jpg?raw=true)
 当通过http发起一个请求时，应用层、传输层、网络层和链路层的相关协议依次对该请求进行包装并携带对应的首部，最终在链路层生成以太网数据包，以太网数据包通过物理介质传输给对方主机，对方接收到数据包以后，然后再一层一层采用对应的协议进行拆包，最后把应用层数据交给应用程序处理。
+
+[深入浅出 TCP/IP 协议栈](https://www.cnblogs.com/onepixel/p/7092302.html)
